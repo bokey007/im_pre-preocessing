@@ -3,6 +3,11 @@ Interactive image pre-processing app that automatically created image processing
 
 # Following is the list of included pre_preocessors
 
+## 0. read_im
+    Folowwing methods are available:
+    a. read_to_openCV
+    b. 
+
 ## 1. map_colore_space
     Folowwing methods are available:
     a. rgb_to_gray
@@ -15,6 +20,11 @@ Interactive image pre-processing app that automatically created image processing
     h. merge_first_two_ch
     i. merge_last_two_ch
 
+## Brightness and Contrast
+
+## 3. hist and hiss=togram equilisation
+    Folowwing methods are available:
+    a. 
 
 ## 2. smooth
     Folowwing methods are available:
@@ -23,10 +33,6 @@ Interactive image pre-processing app that automatically created image processing
     c. median
     d. bilateral
     
-
-## 3. hist
-    Folowwing methods are available:
-    a. 
     
 
 ## 4. threshold
@@ -61,10 +67,12 @@ Interactive image pre-processing app that automatically created image processing
     b. gaussian
     c. median
     d. bilateral
-    
-## 9. Hough Transform
 
-## 10. harr cascade
+## 9. shape detection
+    
+## 10. Hough Transform
+
+## 11. harr cascade
     
 
 
