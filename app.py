@@ -32,6 +32,8 @@ if uploaded_file is not None:
     imput_im = Image.open(uploaded_file)
     imput_im_np = np.array(imput_im.convert('RGB'))
     im = imput_im_np
+
+    st.subheader("resize input image")
     
     st.subheader("map input image to different color spaces")
     
@@ -186,17 +188,41 @@ if uploaded_file is not None:
         if thresh_method == "None":
             pass
         elif thresh_method == "Thresholding":
-            st.sidebar.subheader("Controls for Averaging smooting")
-            filter_ = st.sidebar.slider('Adjust the filter size', min_value=1, max_value=11, value=5, step=2)
-            im = cv2.blur(im,(filter_,filter_))
+            st.sidebar.subheader("Controls for Thresholding")
+            threshold = st.sidebar.slider('Adjust the thresdhold. Anything greater (re lesser than in case of INV) than this value will be set to white (255)', min_value=0, max_value=255, value=150, step=1)
+            thresh_type = st.radio('Specify thresholding type:', ['Binary', 'Binary Inverse'], horizontal=True,)
+            if thresh_type == "Binary":
+                thresh_type_cv = cv2.THRESH_BINARY
+            elif thresh_type == "Binary Inverse":
+                thresh_type_cv = cv2.THRESH_BINARY_INV
+            _, im = cv2.threshold(im, threshold, 255, thresh_type_cv)
             st.image(im)
         elif thresh_method == "Adaptive thresholding":
-            st.sidebar.subheader("Controls for Gaussian smooting")
-            filter_ = st.sidebar.slider('Adjust the filter size', min_value=1, max_value=11, value=7, step=2)
-            im = cv2.GaussianBlur(im,(filter_,filter_),0)
+            st.sidebar.subheader("Controls for Adaptive thresholding")
+            kernel_ada_thre = st.sidebar.slider('Adjust the block size', min_value=1, max_value=50, value=11, step=2)
+            val_ada_thre = st.sidebar.slider('C Value', min_value=1, max_value=50, value=9, step=1)
+            thresh_type = st.radio('Specify thresholding type:', ['Binary', 'Binary Inverse'], horizontal=True,)
+            adaptive_startegy = st.radio('Specify adaptive strategy:', ['mean', 'gaussian', 'calib cb'], horizontal=True,)
+            if thresh_type == "Binary":
+                thresh_type_cv = cv2.THRESH_BINARY
+            elif thresh_type == "Binary Inverse":
+                thresh_type_cv = cv2.THRESH_BINARY_INV
+
+            if adaptive_startegy == "mean":
+                adaptive_startegy_cv = cv2.ADAPTIVE_THRESH_MEAN_C
+            elif adaptive_startegy == "std":
+                adaptive_startegy_cv = cv2.ADAPTIVE_THRESH_GAUSSIAN_C
+            elif adaptive_startegy == "calib cb":
+                adaptive_startegy_cv = cv2.CALIB_CB_ADAPTIVE_THRESH
+            im = cv2.adaptiveThreshold(im, 255, adaptive_startegy_cv, thresh_type_cv, kernel_ada_thre, val_ada_thre)
             st.image(im)
         elif thresh_method == "Otsu thresholding":
-            pass
+            st.sidebar.subheader("Controls for Otsu thresholding")
+            ret, im = cv2.threshold(im, 0, 255, cv2.THRESH_BINARY + 
+                                            cv2.THRESH_OTSU)   
+            st.image(im)
+            st.write("Otsu threshold is :", ret)
+            
 
 
     st.subheader("canny")
@@ -212,12 +238,13 @@ if uploaded_file is not None:
         if edge_option == "None":
             pass
         elif edge_option == "Sobel":
-            slider3 = st.sidebar.slider('Adjust the filter size', min_value=1, max_value=11, value=5, step=2)
-            im = cv2.blur(im,(slider3,slider3))
+            sobelx = cv2.Sobel(im, cv2.CV_64F, 1, 0)
+            sobely = cv2.Sobel(im, cv2.CV_64F, 0, 1)
+            im = cv2.bitwise_or(sobelx, sobely)
             st.image(im)
         elif edge_option == "Lanlasian":
-            slider3 = st.sidebar.slider('Adjust the filter size', min_value=1, max_value=11, value=7, step=2)
-            im = cv2.GaussianBlur(im,(slider3,slider3),0)
+            im = cv2.Laplacian(im, cv2.CV_64F)
+            im = np.unit8(np.absolute(lap))
             st.image(im)
         elif edge_option == "Canny":
             st.sidebar.subheader("Controls for canny")
@@ -310,6 +337,68 @@ if uploaded_file is not None:
 
                 
             st.image(img_cont)
+
+    
+    st.subheader("Template matching and removal, expecting gray image as imput template image can be color or gray")
+    
+    template_option = st.radio('options for template detection:', ['None','template matching'], horizontal=True,)
+
+    col15, col16 = st.columns( [0.5, 0.5])
+
+    with col15:
+        st.image(im)
+        #width, height = imput_im.size
+        st.write("current state of the image")
+    with col16:
+        if template_option == "None":
+            pass
+        elif template_option == "template matching":
+            uploaded_template_file = st.file_uploader("Upload template image file")
+            if uploaded_template_file is not None:
+                # To read file as bytes:
+                #step 0 : read the file 
+                imput_template_im = Image.open(uploaded_template_file)
+                imput_template_im_np = np.array(imput_template_im.convert('RGB'))
+                imput_template_im_gray = cv2.cvtColor(imput_template_im_np, cv2.COLOR_RGB2GRAY)
+                st.image(imput_template_im_gray)
+                h, w = imput_template_im_gray.shape
+                comparison_method = st.sidebar.radio('Choose coparison method:', ['cv2.TM_CCOEFF', 'cv2.TM_CCOEFF_NORMED', 'cv2.TM_CCORR',
+                                                                                    'cv2.TM_CCORR_NORMED', 'cv2.TM_SQDIFF', 
+                                                                                    'cv2.TM_SQDIFF_NORMED'], horizontal=True,)
+                if comparison_method == "cv2.TM_CCOEFF":
+                    comparison_method_val = cv2.TM_CCOEFF
+                elif comparison_method == "cv2.TM_CCOEFF_NORMED":
+                    comparison_method_val = cv2.TM_CCOEFF_NORMED
+                elif comparison_method == "cv2.TM_CCORR":
+                    comparison_method_val = cv2.TM_CCORR
+                elif comparison_method == "cv2.TM_CCORR_NORMED":
+                    comparison_method_val = cv2.TM_CCORR_NORMED
+                elif comparison_method == "cv2.TM_SQDIFF":
+                    comparison_method_val = cv2.TM_SQDIFF
+                elif comparison_method == "cv2.TM_SQDIFF_NORMED":
+                    comparison_method_val = cv2.TM_SQDIFF_NORMED
+
+                compa_threshold = st.sidebar.slider('specify comparison threshold', min_value=0.0, max_value=1.0, value=0.8, step=0.0001)
+                res = cv2.matchTemplate(im, imput_template_im_gray, comparison_method_val)
+                min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+                if comparison_method_val in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]:
+                    location = min_loc
+                    loc = np.where( res <= compa_threshold)
+                    print("considering min val")
+                    print(compa_threshold)
+                else:
+                    location = max_loc
+                    loc = np.where( res >= compa_threshold)
+                    print("considering max val")
+                    print(compa_threshold)
+
+                bottom_right = (location[0] + w, location[1] + h)
+                cv2.rectangle(im, location, bottom_right, 0, 6)
+                
+                for pt in zip(*loc[::-1]):
+                    cv2.rectangle(im, pt, (pt[0] + w, pt[1] + h), 200, 2)
+                st.image(im)
+                
 
 
 
