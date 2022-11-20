@@ -18,7 +18,7 @@ import cv2
 import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
-st.title('Power IgmA Pipe: Poweful Image Analysis Pipeline')
+st.title('Power Imp: Poweful Image Analysis Pipeline Creator')
 st.header('Interactive image pre-processing and automated pipeline creation')
 
 
@@ -338,7 +338,9 @@ if uploaded_file is not None:
                 
             st.image(img_cont)
 
-    
+    st.subheader("shape matching with Hu moment on contour")
+    st.subheader("Feature extraction")
+    st.subheader("Feature Matching")
     st.subheader("Template matching and removal, expecting gray image as imput template image can be color or gray")
     
     template_option = st.radio('options for template detection:', ['None','template matching'], horizontal=True,)
@@ -398,7 +400,9 @@ if uploaded_file is not None:
                 for pt in zip(*loc[::-1]):
                     cv2.rectangle(im, pt, (pt[0] + w, pt[1] + h), 200, 2)
                 st.image(im)
-                
+
+    st.subheader("Shape detection with Hough Transform")
+    st.subheader("Backgroud removal with the current best of deep learning")             
 
 
 
