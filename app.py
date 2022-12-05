@@ -18,7 +18,9 @@ import cv2
 import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
-st.title('Power Imp: Poweful Image Analysis Pipeline Creator')
+st.title('Power Imp: Poweful Image Analysis and Pipeline Creator')
+st.title('imppp: Image pre-processing pipeline')
+st.title("IMP3: image pipe (Image pre-processing pipeline), it's my pleasure ;)")
 st.header('Interactive image pre-processing and automated pipeline creation')
 
 

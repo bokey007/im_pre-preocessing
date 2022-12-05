@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "imp3"
+version = "0.1.0"
+description = "Image pre-preocessing pipeline : Interactive image pre-processing and automated pipeline creation"
+authors = ["bokey <bokey007@users.noreply.github.com>", "Sudhir Deshmukh <bokeydeshmukh@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
