@@ -19,9 +19,33 @@ def timer(orig_func):
 
     return wrapper
 
+# we will need two UI decorators 
+# 1. TO DECORATE OUTSIDE
+# 2. TO DECORATE FUCTIONS SPECIFIC ui SETTINGS
+        # A. Setting name (description)
+        # B. slider
+        # C. radio
 
 
-def des_shape(orig_func):
+def processor_settings():
+    @wraps(orig_func)
+    def wrapper(*args, **kwargs):
+        if args[1]:
+            # subheade
+            st.sidebar.subheader("Controls for {}".format(args[1]))
+        if args[2]:
+            # radio list
+            thresh_type = st.radio('Specify thresholding type:', args[2], horizontal=True,)
+        if args[2]:
+            # slider list
+
+        
+        return orig_func(*args, **kwargs)
+
+    return wrapper
+    
+
+def find_shape(orig_func):
 
     @wraps(orig_func)
     def wrapper(*args, **kwargs):
